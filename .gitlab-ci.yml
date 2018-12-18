@@ -12,6 +12,13 @@ stages:
     - release
     - deploy
 
+.dind: &dind
+    before_script:
+        - docker info
+    services:
+        - name: docker:dind
+          command: ["--experimental"]
+
 variables:
     CONTAINER_IMAGE: registry.gitlab.com/$CI_PROJECT_PATH
     DOCKER_HOST: tcp://docker:2375
