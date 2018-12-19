@@ -57,7 +57,7 @@ RUN export PATH=$PATH:/opt/cmake/bin
 #    && rm boost_1_68_0.tar.gz \
 #    && cd boost_1_68_0 \
 #    && ./bootstrap.sh --prefix=/usr/local --with-python=python3 \
-#    && ./b2 link=shared threading=multi variant=release \
+#    && ./b2 link=shared threading=multi variant=release address-model=64 \
 #    && ./b2 install \
 #    && cd /home 
 #    && rm -rf boost_1_68_0
