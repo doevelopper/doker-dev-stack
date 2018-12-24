@@ -146,16 +146,16 @@ RUN apt-get update \
     && apt-get install --assume-yes --no-install-recommends python-dev python3-dev 
 # Download boost, untar, setup install with bootstrap and only do the Program Options library,
 # and then install
-# RUN cd /home \
-	# && curl -L -O -k https://dl.bintray.com/boostorg/release/1.69.0/source/boost_1_69_0.tar.gz \
-    # && tar xfz boost_1_69_0.tar.gz > /dev/null \
-    # && cd boost_1_69_0 \
-    # && ./bootstrap.sh --prefix=/usr/ \
-    # && ./b2 --help \
-    # && ./b2 link=shared threading=multi variant=release address-model=64 \
-    # && ./b2 install \
-    # && cd /home \
-    # && rm -rvf boost_1_68_0 boost_1_69_0.tar.gz
+ RUN cd /home \
+    && curl -L -O -k https://dl.bintray.com/boostorg/release/1.69.0/source/boost_1_69_0.tar.gz \
+    && tar xfz boost_1_69_0.tar.gz > /dev/null \
+    && cd boost_1_69_0 \
+    && ./bootstrap.sh --prefix=/usr/ \
+    && ./b2 --help \
+    && ./b2 link=shared threading=multi variant=release address-model=64 \
+    && ./b2 install \
+    && cd /home \
+    && rm -rvf boost_1_68_0 boost_1_69_0.tar.gz
 
 RUN cd /home \
     && curl -L -O http://www-us.apache.org/dist//xerces/c/3/sources/xerces-c-3.2.2.tar.gz \
