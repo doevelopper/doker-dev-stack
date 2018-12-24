@@ -146,8 +146,8 @@ RUN apt-get update \
     && apt-get install --assume-yes --no-install-recommends python-dev python3-dev 
 # Download boost, untar, setup install with bootstrap and only do the Program Options library,
 # and then install
- RUN cd /home \
-    && curl -L -O -k https://dl.bintray.com/boostorg/release/1.69.0/source/boost_1_69_0.tar.gz \
+RUN cd /home \
+	&& curl -L -O -k https://dl.bintray.com/boostorg/release/1.69.0/source/boost_1_69_0.tar.gz \
     && tar xfz boost_1_69_0.tar.gz > /dev/null \
     && cd boost_1_69_0 \
     && ./bootstrap.sh --prefix=/usr/ \
@@ -180,7 +180,7 @@ RUN cd /home \
     && rm -rf protobuf
 
 RUN apt-get update \
-    && apt-get install --assume-yes --no-install-recommends pip pip3 ruby ruby-dev
+    && apt-get install --assume-yes --no-install-recommends python-pip python3-pip ruby ruby-dev
 
 RUN cd /home && export PATH=$PATH:/opt/cmake/bin \
 	&& git clone --depth=1 --recurse-submodules  https://github.com/cucumber/cucumber-cpp.git \
