@@ -2,6 +2,17 @@
 OUTPUT = $(shell pwd)/output
 USER = $(shell id -u):$(shell id -g)
 REGISTRY_USER=doevelopper
+# Image and binary can be overidden with env vars.
+DOCKER_IMAGE ?= doevelopper/developmentplatform
+GIT_COMMIT = $(strip $(shell git rev-parse --short HEAD))
+GIT_BRANCH ?= $(shell git rev-parse --abbrev-ref HEAD)
+ifeq ($(GIT_BRANCH), master)
+	DOCKER_TAG = latest
+else
+	DOCKER_TAG = $(GIT_BRANCH)
+endif
+
+# Get the latest commit.
 NS ?= doevelopper
 DOCKERFILES=$(shell find * -type f -name Dockerfile)
 NAMES=$(subst /,\:,$(subst /Dockerfile,,$(DOCKERFILES)))
@@ -41,6 +52,19 @@ help:  ## This help
 	@echo ""
 	@echo "You can chain actions, typically in CI environment you want make checkrebuild push all"
 	@echo "which rebuild and push only images having updates availables."
+
+test:
+	docker run $(DOCKER_IMAGE):$(DOCKER_TAG) version --client
+
+docker_build:
+	@docker build \
+		--build-arg VCS_REF=`git rev-parse --short HEAD` \
+		--build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
+		-t $(DOCKER_IMAGE):$(DOCKER_TAG) .
+
+docker_push:
+	# Push to DockerHub
+	docker push $(DOCKER_IMAGE):$(DOCKER_TAG)
 
 build: Dockerfile
 	docker build -t $(NS)/$(IMAGE_NAME):$(VERSION) -f Dockerfile .

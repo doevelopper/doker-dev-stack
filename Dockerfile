@@ -17,23 +17,18 @@ ENV IMAGE_VERSION ${IMAGE_VERSION:-0.0.1}
 
 RUN apt-get update \
     && apt-get install --assume-yes \
-       apt-transport-https \
-       ca-certificates \
-       software-properties-common
 
-RUN apt-get update \
-    && apt-get install --assume-yes gpg git xz-utils unzip wget curl openssh-server  openssh-client libtool\
-    && apt-get clean --assume-yes \
-    && apt-get --assume-yes --quiet clean \
-    && apt-get --assume-yes --quiet autoremove \
-    && rm /var/lib/apt/lists/* -r \
-    && rm -rf /usr/share/man/*
 
 RUN apt-get update \
     && apt-get install --assume-yes --no-install-recommends perl \
-#        libcurl4-openssl-dev libcurl4-gnutls-dev libcurl4-nss-dev \
+		gpg git xz-utils unzip wget curl openssh-server  openssh-client libtool\
+		apt-transport-https \
+		ca-certificates \
+		software-properties-common \
+#        libcurl4-openssl-dev libcurl4-gnutls-dev libcurl4-nss-dev libgl1-mesa-dev \
+		libassimp-dev libfontconfig1 libdbus-1-3 \
         bison flex build-essential gawk libgcrypt20-dev libcrypto++-dev \
-         python-dev python3-dev python-wheel cython cython3 python3-wheel \
+        python-dev python3-dev python-wheel cython cython3 python3-wheel \
         perl-base perl-modules \
         libxml2-dev libxml2-utils python3-setuptools python-setuptools \
         libgnutls28-dev libcurl4-gnutls-dev libgnutls-openssl27 \
@@ -47,7 +42,6 @@ RUN apt-get update \
     && apt-get autoclean --assume-yes \
     && rm /var/lib/apt/lists/* -r \
     && rm -rf /usr/share/man/*
-
 
 RUN mkdir -pv /opt/cmake \
    &&  wget -qO- "https://cmake.org/files/v3.13/cmake-3.13.2-Linux-x86_64.tar.gz" \
@@ -145,8 +139,6 @@ RUN  cd /home && make --version \
     && cd /home \
     && rm -rvf logging-log4cxx
 
-RUN apt-get update \
-    && apt-get install --assume-yes --no-install-recommends python-dev python3-dev 
 # Download boost, untar, setup install with bootstrap and only do the Program Options library,
 # and then install
 RUN cd /home \
@@ -183,7 +175,7 @@ RUN cd /home \
     && rm -rf protobuf
 
 RUN apt-get update \
-    && apt-get install --assume-yes --no-install-recommends python-pip python3-pip ruby ruby-dev
+    && apt-get install --assume-yes --no-install-recommends
 
 RUN cd /home && export PATH=$PATH:/opt/cmake/bin \
 	&& git clone --depth=1 --recurse-submodules https://github.com/cucumber/cucumber-cpp.git \
@@ -295,8 +287,6 @@ ENV QT_DESKTOP $QT_PATH/${QT_VERSION}/gcc_64
 ENV QTDIR $QT_PATH/${QT_VERSION}/gcc_64
 ENV PATH $QT_DESKTOP/bin:$PATH
 
-RUN apt-get install --assume-yes libgl1-mesa-dev libassimp-dev libfontconfig1 libdbus-1-3
-
 RUN cd /home \
     && curl -L -O -k https://download.qt.io/official_releases/qt/5.12/5.12.0/qt-opensource-linux-x64-5.12.0.run \
     && chmod +x qt-opensource-linux-x64-5.12.0.run \
@@ -304,8 +294,8 @@ RUN cd /home \
 
 ARG OPENDDS_BUILD_OPTIONS=-std=c++11 --ipv6 --openssl --xerces3=/usr/ --java --rapidjson --glib --boost=/usr/
 ARG OPENDDS_BUILD_CONFIG_OPTIONS=--no-tests --no-inline --features=versioned_namespace=1 --macros=c++11=1 --no-debug --optimize
-ARG DDS_BUILD_CONFIG_OPTIONS=--security --safety-profile=base --qt
-# --wireshark=/usr/local/include/wireshark/ 
+ARG DDS_BUILD_CONFIG_OPTIONS=--security --safety-profile=base
+# --qt --wireshark=/usr/local/include/wireshark/ 
 
 ARG GET_DDS_REPO="https://github.com/objectcomputing/OpenDDS.git"
 ARG GET_DDS_VERSION="DDS-3.13"
