@@ -41,6 +41,34 @@ build:
           #        - docker build -t registry.gitlab.com/doevelopper/doker-dev-stack .
           #        - docker push registry.gitlab.com/doevelopper/doker-dev-stack
 
+test_build_image:
+    image: docker:git
+    tags:
+        - doppler-docker
+    services:
+        - docker:dind
+    script:
+        - docker build .
+    except:
+        - tags
+
+build_image:
+    image: docker:git
+    tags:
+        - doppler-docker
+    services:
+        - docker:dind
+    script:
+        - docker login -u "gitlab-ci-token" -p "$CI_BUILD_TOKEN" $CI_REGISTRY
+        - docker build --pull -t "$CI_REGISTRY_IMAGE:$CI_BUILD_TAG" .
+        - docker login -u "gitlab-ci-token" -p "$CI_BUILD_TOKEN" $CI_REGISTRY
+        - docker push "$CI_REGISTRY_IMAGE:$CI_BUILD_TAG"
+        - docker login -u "duniterteam" -p "$DUNITERTEAM_PASSWD"
+        - docker tag "$CI_REGISTRY_IMAGE:$CI_BUILD_TAG" duniter/release-builder:"$CI_BUILD_TAG"
+        - docker push duniter/release-builder:"$CI_BUILD_TAG"
+    only:
+        - tags
+
 test1:
     stage: test
     script:
