@@ -21,22 +21,22 @@ RUN apt-get update \
 
 RUN apt-get update \
     && apt-get install --assume-yes --no-install-recommends perl \
-		gpg git xz-utils unzip wget curl openssh-server  openssh-client libtool\
-		apt-transport-https \
-		ca-certificates \
-		software-properties-common \
+       gpg git xz-utils unzip wget curl openssh-server  openssh-client libtool\
+       apt-transport-https \
+       ca-certificates \
+       software-properties-common \
 #        libcurl4-openssl-dev libcurl4-gnutls-dev libcurl4-nss-dev libgl1-mesa-dev \
-		libassimp-dev libfontconfig1 libdbus-1-3 \
-        bison flex build-essential gawk libgcrypt20-dev libcrypto++-dev \
-        python-dev python3-dev python-wheel cython cython3 python3-wheel \
-        perl-base perl-modules \
-        libxml2-dev libxml2-utils python3-setuptools python-setuptools \
-        libgnutls28-dev libcurl4-gnutls-dev libgnutls-openssl27 \
-        mesa-common-dev libglu1-mesa-dev libpcap-dev libglib2.0-dev libssl1.0-dev \
-        libfontconfig libldap2-dev libldap-2.4-2  libmysql++-dev \
-        unixodbc-dev libgdbm-dev libodb-pgsql-dev libcrossguid-dev  uuid-dev libossp-uuid-dev \
-        libghc-uuid-dev libghc-uuid-types-dev ruby ruby-dev libelf-dev  elfutils libelf1 \
-        libpulse-dev  make gcc-8 g++-8 nfs-common \
+       libassimp-dev libfontconfig1 libdbus-1-3 \
+       bison flex build-essential gawk libgcrypt20-dev libcrypto++-dev \
+       python-dev python3-dev python-wheel cython cython3 python3-wheel \
+       perl-base perl-modules \
+       libxml2-dev libxml2-utils python3-setuptools python-setuptools \
+       libgnutls28-dev libcurl4-gnutls-dev libgnutls-openssl27 \
+       mesa-common-dev libglu1-mesa-dev libpcap-dev libglib2.0-dev libssl1.0-dev \
+       libfontconfig libldap2-dev libldap-2.4-2  libmysql++-dev \
+       unixodbc-dev libgdbm-dev libodb-pgsql-dev libcrossguid-dev  uuid-dev libossp-uuid-dev \
+       libghc-uuid-dev libghc-uuid-types-dev ruby ruby-dev libelf-dev  elfutils libelf1 \
+       libpulse-dev  make gcc-8 g++-8 nfs-common \
     && apt-get --assume-yes --quiet clean \
     && apt-get --assume-yes --quiet autoremove \
     && apt-get autoclean --assume-yes \
@@ -280,17 +280,17 @@ RUN cd /home \
 
 COPY qt-installer-noninteractive.qs /home
 
-ARG QT_VERSION=5.12.0
+# ARG QT_VERSION=5.12.0
 
-ENV QT_PATH=/opt/Qt
-ENV QT_DESKTOP $QT_PATH/${QT_VERSION}/gcc_64
-ENV QTDIR $QT_PATH/${QT_VERSION}/gcc_64
-ENV PATH $QT_DESKTOP/bin:$PATH
+# ENV QT_PATH=/opt/Qt
+# ENV QT_DESKTOP $QT_PATH/${QT_VERSION}/gcc_64
+# ENV QTDIR $QT_PATH/${QT_VERSION}/gcc_64
+# ENV PATH $QT_DESKTOP/bin:$PATH
 
-RUN cd /home \
-    && curl -L -O -k https://download.qt.io/official_releases/qt/5.12/5.12.0/qt-opensource-linux-x64-5.12.0.run \
-    && chmod +x qt-opensource-linux-x64-5.12.0.run \
-    && ./qt-opensource-linux-x64-5.12.0.run  --verbose --script /home/qt-installer-noninteractive.qs
+# RUN cd /home \
+#    && curl -L -O -k https://download.qt.io/official_releases/qt/5.12/5.12.0/qt-opensource-linux-x64-5.12.0.run \
+#    && chmod +x qt-opensource-linux-x64-5.12.0.run \
+#    && ./qt-opensource-linux-x64-5.12.0.run  --verbose --script /home/qt-installer-noninteractive.qs
 
 ARG OPENDDS_BUILD_OPTIONS=-std=c++11 --ipv6 --openssl --xerces3=/usr/ --java --rapidjson --glib --boost=/usr/
 ARG OPENDDS_BUILD_CONFIG_OPTIONS=--no-tests --no-inline --features=versioned_namespace=1 --macros=c++11=1 --no-debug --optimize
