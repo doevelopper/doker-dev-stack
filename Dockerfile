@@ -292,9 +292,9 @@ COPY qt-installer-noninteractive.qs /home
 #    && chmod +x qt-opensource-linux-x64-5.12.0.run \
 #    && ./qt-opensource-linux-x64-5.12.0.run  --verbose --script /home/qt-installer-noninteractive.qs
 
-ARG OPENDDS_BUILD_OPTIONS=-std=c++11 --ipv6 --openssl --xerces3=/usr/ --java --rapidjson --glib --boost=/usr/
-ARG OPENDDS_BUILD_CONFIG_OPTIONS=--no-tests --no-inline --features=versioned_namespace=1 --macros=c++11=1 --no-debug --optimize
-ARG DDS_BUILD_CONFIG_OPTIONS=--security --safety-profile=base
+ENV OPENDDS_BUILD_OPTIONS "-std=c++11 --ipv6 --openssl --xerces3=/usr/ --java --rapidjson --glib --boost=/usr/"
+ENV OPENDDS_BUILD_CONFIG_OPTIONS "--no-tests --no-inline --features=versioned_namespace=1 --macros=c++11=1 --no-debug --optimize"
+ENV DDS_BUILD_CONFIG_OPTIONS "--security --safety-profile=base"
 # --qt --wireshark=/usr/local/include/wireshark/ 
 
 ARG GET_DDS_REPO="https://github.com/objectcomputing/OpenDDS.git"
