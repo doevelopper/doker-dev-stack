@@ -1,8 +1,8 @@
 # Docker Image for C++
 
-[![Docker Pulls][pull-shield]] [#]
-[![Automation][automated-shield]] [#]
-[![Status][status-shield]] [#]
+[Docker Pulls][pull-shield] 
+[Automation][automated-shield]
+[Status][status-shield]
 
 First Multi Product Enterprise Solution to automate Continuous Integration, Continuous Deployment and Continuous code quality
 
