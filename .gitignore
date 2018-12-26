@@ -1,7 +1,7 @@
 
 ACE_TAO
 MPC
-OpenDDS
+#OpenDDS
 workspace
 autobuild
 
