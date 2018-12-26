@@ -16,10 +16,6 @@ ARG IMAGE_VERSION
 ENV IMAGE_VERSION ${IMAGE_VERSION:-0.0.1}
 
 RUN apt-get update \
-    && apt-get install --assume-yes \
-
-
-RUN apt-get update \
     && apt-get install --assume-yes --no-install-recommends perl \
        gpg git xz-utils unzip wget curl openssh-server  openssh-client libtool\
        apt-transport-https \
@@ -173,9 +169,6 @@ RUN cd /home \
     && make clean && make && make install \
     && cd /home \
     && rm -rf protobuf
-
-RUN apt-get update \
-    && apt-get install --assume-yes --no-install-recommends
 
 RUN cd /home && export PATH=$PATH:/opt/cmake/bin \
 	&& git clone --depth=1 --recurse-submodules https://github.com/cucumber/cucumber-cpp.git \
