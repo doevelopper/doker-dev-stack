@@ -7,7 +7,6 @@ LABEL Vendor="Sloggy Botom"
 LABEL Homepage="https://gitlab..../github/...whatever"
 LABEL HowToUseIt="<docker run -d -p 8888:80 imagename> or after repository cloning: <docker-compose up --no-recreate>"
 
-
 ENV DEBIAN_FRONTEND noninteractive
 ENV LC_ALL C.UTF-8
 ENV LANG C.UTF-8
@@ -40,12 +39,12 @@ RUN apt-get update \
     && rm -rf /usr/share/man/*
 
 RUN mkdir -pv /opt/cmake \
-   &&  wget -qO- "https://cmake.org/files/v3.13/cmake-3.13.2-Linux-x86_64.tar.gz" \
+    && wget -qO- "https://cmake.org/files/v3.13/cmake-3.13.2-Linux-x86_64.tar.gz" \
         | tar --strip-components=1 -xz -C /opt/cmake
 
 ENV PATH $PATH:/opt/cmake/bin
 
-RUN  cd /home && export PATH=$PATH:/opt/cmake/bin && cmake --version \
+RUN cd /home && export PATH=$PATH:/opt/cmake/bin && cmake --version \
     && git clone --depth=1 https://github.com/uncrustify/uncrustify.git \
     && cd uncrustify \
     && cmake -E make_directory build \
@@ -55,7 +54,7 @@ RUN  cd /home && export PATH=$PATH:/opt/cmake/bin && cmake --version \
     && cd /home \
     && rm -rvf uncrustify
 
-RUN  cd /home && export PATH=$PATH:/opt/cmake/bin && cmake --version \
+RUN cd /home && export PATH=$PATH:/opt/cmake/bin && cmake --version \
     && git clone --depth=1 https://github.com/danmar/cppcheck.git \
     && cd cppcheck \
     && cmake -E make_directory build \
@@ -66,7 +65,7 @@ RUN  cd /home && export PATH=$PATH:/opt/cmake/bin && cmake --version \
     && cd /home \
     && rm -rvf cppcheck
 
-RUN  cd /home && export PATH=$PATH:/opt/cmake/bin && cmake --version \
+RUN cd /home && export PATH=$PATH:/opt/cmake/bin && cmake --version \
     && git clone --depth=1 https://github.com/doxygen/doxygen.git  \
     && cd doxygen \
     && cmake -E make_directory build \
@@ -76,7 +75,7 @@ RUN  cd /home && export PATH=$PATH:/opt/cmake/bin && cmake --version \
     && cd /home \
     && rm -rvf doxygen
 
-RUN  cd /home && export PATH=$PATH:/opt/cmake/bin && cmake --version \
+RUN cd /home && export PATH=$PATH:/opt/cmake/bin && cmake --version \
     && git clone --depth=1 https://github.com/google/googletest.git \
     && cd googletest \
     && cmake -E make_directory build \
@@ -86,7 +85,7 @@ RUN  cd /home && export PATH=$PATH:/opt/cmake/bin && cmake --version \
     && cd /home \
     && rm -rvf googletest
 
-RUN  cd /home && export PATH=$PATH:/opt/cmake/bin && cmake --version \
+RUN cd /home && export PATH=$PATH:/opt/cmake/bin && cmake --version \
     && git clone --depth=1 https://github.com/google/benchmark.git \
     && cd benchmark \
     && cmake -E make_directory build \
@@ -96,7 +95,7 @@ RUN  cd /home && export PATH=$PATH:/opt/cmake/bin && cmake --version \
     && cd /home \
     && rm -rvf benchmark
 
-RUN  cd /home && make --version \
+RUN cd /home && make --version \
     && curl -L -O -k https://www-us.apache.org/dist/apr/apr-1.6.5.tar.gz  \
     && tar -xvzf apr-1.6.5.tar.gz > /dev/null  \
     && cd apr-1.6.5 \
@@ -106,7 +105,7 @@ RUN  cd /home && make --version \
     && cd /home \
     && rm -rvf apr-1.6.5.tar.gz apr-1.6.5
 
-RUN  cd /home && export PATH=$PATH:/opt/cmake/bin && cmake --version \
+RUN cd /home && export PATH=$PATH:/opt/cmake/bin && cmake --version \
     && git clone --depth=1 https://github.com/libexpat/libexpat.git  \
     && cd libexpat/expat  \
     && cmake -E make_directory build \
@@ -116,7 +115,7 @@ RUN  cd /home && export PATH=$PATH:/opt/cmake/bin && cmake --version \
     && cd /home \
     && rm -rvf libexpat
 
-RUN  cd /home && make --version \
+RUN cd /home && make --version \
     && curl -L -O -k https://www-us.apache.org/dist//apr/apr-util-1.6.1.tar.gz  \
     && tar -xvzf apr-util-1.6.1.tar.gz > /dev/null  \
     && cd apr-util-1.6.1 \
@@ -125,12 +124,12 @@ RUN  cd /home && make --version \
     && cd /home \
     && rm -rvf apr-util-1.6.1.tar.gz apr-util-1.6.1
 
-RUN  cd /home && make --version \
+RUN cd /home && make --version \
     && git clone --depth=1 https://gitbox.apache.org/repos/asf/logging-log4cxx.git  \
     && cd logging-log4cxx  \
     && ./autogen.sh \
     && ./configure --prefix=/usr/ --with-apr=/usr/ --with-apr-util=/usr/ \
-		--enable-char --enable-wchar_t --with-charset=utf-8 --with-logchar=utf-8 \
+	--enable-char --enable-wchar_t --with-charset=utf-8 --with-logchar=utf-8 \
     && make clean && make && make install  \
     && cd /home \
     && rm -rvf logging-log4cxx
@@ -138,7 +137,7 @@ RUN  cd /home && make --version \
 # Download boost, untar, setup install with bootstrap and only do the Program Options library,
 # and then install
 RUN cd /home \
-	&& curl -L -O -k https://dl.bintray.com/boostorg/release/1.69.0/source/boost_1_69_0.tar.gz \
+    && curl -L -O -k https://dl.bintray.com/boostorg/release/1.69.0/source/boost_1_69_0.tar.gz \
     && tar xfz boost_1_69_0.tar.gz > /dev/null \
     && cd boost_1_69_0 \
     && ./bootstrap.sh --prefix=/usr/ \
@@ -146,7 +145,7 @@ RUN cd /home \
     && ./b2 link=shared threading=multi variant=release address-model=64 \
     && ./b2 install \
     && cd /home \
-    && rm -rvf boost_1_68_0 boost_1_69_0.tar.gz
+    && rm -rvf boost_1_69_0 boost_1_69_0.tar.gz
 
 RUN cd /home \
     && curl -L -O http://www-us.apache.org/dist//xerces/c/3/sources/xerces-c-3.2.2.tar.gz \
@@ -154,9 +153,9 @@ RUN cd /home \
     && rm xerces-c-3.2.2.tar.gz \
     && cd xerces-c-3.2.2/ \
     && ./configure --prefix=/usr \
-            --enable-static --enable-shared --enable-netaccessor-socket \
-            --enable-transcoder-gnuiconv --enable-transcoder-iconv \
-            --enable-msgloader-inmemory --enable-xmlch-uint16_t --enable-xmlch-char16_t \
+        --enable-static --enable-shared --enable-netaccessor-socket \
+        --enable-transcoder-gnuiconv --enable-transcoder-iconv \
+        --enable-msgloader-inmemory --enable-xmlch-uint16_t --enable-xmlch-char16_t \
     && make clean && make && make install \
     && cd /home \
     && rm -rf xerces-c-3.2.2/
@@ -171,7 +170,7 @@ RUN cd /home \
     && rm -rf protobuf
 
 RUN cd /home && export PATH=$PATH:/opt/cmake/bin \
-	&& git clone --depth=1 --recurse-submodules https://github.com/cucumber/cucumber-cpp.git \
+    && git clone --depth=1 --recurse-submodules https://github.com/cucumber/cucumber-cpp.git \
     && cd cucumber-cpp \
     && gem install bundler \
     && bundle install \
@@ -200,17 +199,20 @@ RUN cd /home \
 
 RUN wget https://www.jacorb.org/releases/3.9/jacorb-3.9-binary.zip \
     && unzip jacorb-3.9-binary.zip \
-    && mv -v jacorb-3.9 /opt/
+    && mv -v jacorb-3.9 /opt/ \
+    && rm -v jacorb-3.9-binary.zip
 
 RUN wget https://www.jacorb.org/releases/2.3.1/jacorb-2.3.1-bin.zip \
     && unzip jacorb-2.3.1-bin.zip \
-    && mv -v jacorb-2.3.1 /opt/
+    && mv -v jacorb-2.3.1 /opt/ \
+    && rm -v jacorb-2.3.1-bin.zip
 
 RUN wget https://www-eu.apache.org/dist/maven/maven-3/3.6.0/binaries/apache-maven-3.6.0-bin.tar.gz \
     && tar -xvzf apache-maven-3.6.0-bin.tar.gz \
-    && mv apache-maven-3.6.0/ /opt/apache-maven
+    && mv apache-maven-3.6.0/ /opt/apache-maven \
+    && rm -v apache-maven-3.6.0-bin.tar.gz
 
-RUN  cd /home \
+RUN cd /home \
     && wget --no-cookies --no-check-certificate \
         --header "Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2F; oraclelicense=accept-securebackup-cookie"\
         "https://download.oracle.com/otn-pub/java/jdk/8u192-b12/750e1c8617c5452694857ad95c3ee230/jdk-8u192-linux-x64.tar.gz" \
@@ -234,10 +236,10 @@ ENV SPLICE_HOST x86_64.linux-release
 ENV PATH $PATH:/opt/apache-maven/bin/:/opt/cmake/bin:/opt/jdk1.8.0_192/bin:/opt/jdk1.8.0_192/jre/bin
 
 RUN cmake --version \
-	&& make --version \
-	&& gcc --version \
-	&& java -version \
-	&& mvn --version
+    && make --version \
+    && gcc --version \
+    && java -version \
+    && mvn --version
 
 COPY stdsoap2.c /home
 
@@ -252,7 +254,7 @@ RUN cd /home \
     && rm -rf Fast-RTPS
 
 RUN cd /home \
-	&& git clone --depth=1 --recurse-submodules https://github.com/ADLINK-IST/opensplice.git \
+    && git clone --depth=1 --recurse-submodules https://github.com/ADLINK-IST/opensplice.git \
     && cd opensplice \
 #    &&  ./configure x86_64.linux-release && make && make install
 #  WKRND make[4]: *** No rule to make target '/usr/include/stdsoap2.c', needed by 'stdsoap2.c'.  Stop.
@@ -294,14 +296,14 @@ ARG GET_DDS_REPO="https://github.com/objectcomputing/OpenDDS.git"
 ARG GET_DDS_VERSION="DDS-3.13"
 
 RUN cd /home \
-	&&  git clone  --depth=1 --recurse-submodules ${GET_DDS_REPO} \
+    &&  git clone  --depth=1 --recurse-submodules ${GET_DDS_REPO} \
     && cd OpenDDS \
-##    && git fetch origin ${GET_DDS_VERSION} \
-##    && git checkout ${GET_DDS_VERSION} \
+##   && git fetch origin ${GET_DDS_VERSION} \
+##   && git checkout ${GET_DDS_VERSION} \
     && ./configure $OPENDDS_BUILD_OPTIONS  $OPENDDS_BUILD_CONFIG_OPTIONS $DDS_BUILD_CONFIG_OPTIONS \
-	    --mpcopts="-workers 2" --ace-github-latest \
-		--prefix=/usr/opendds \
-    && ./scripts/show_build_config.pl \
+        --mpcopts="-workers 2" --ace-github-latest \
+        --prefix=/usr/opendds \
+    && ./tools/scripts/show_build_config.pl \
     && export LD_LIBRARY_PATH+=:${pwd}/build/target/ACE_TAO/ACE/lib:${ACE_ROOT}/lib:${pwd}/build/target/lib:${pwd}/lib \
     && make clean && make && make install \
     && cd /home \     
