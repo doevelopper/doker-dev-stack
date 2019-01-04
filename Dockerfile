@@ -35,7 +35,8 @@ RUN apt-get update \
     && apt-get --assume-yes --quiet clean \
     && apt-get --assume-yes --quiet autoremove \
     && apt-get autoclean --assume-yes \
-    && rm /var/lib/apt/lists/* -r \
+    && rm -rf /var/lib/apt/lists/{apt,dpkg,cache,log} /tmp/* /var/tmp/*
+    && rm -rf /var/lib/apt/lists/* \
     && rm -rf /usr/share/man/*
 
 RUN mkdir -pv /opt/cmake \
