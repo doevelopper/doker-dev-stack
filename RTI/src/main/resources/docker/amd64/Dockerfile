@@ -1,7 +1,7 @@
 # Image for build Real Time Innovation`s Data Distribution Services
 #
 
-FROM amd64/ubuntu:16.4 AS rti-dds-dev-platform
+FROM amd64/ubuntu:16.04 AS rti-dds-dev-platform
 
 MAINTAINER "Adrien H."
 
@@ -20,6 +20,8 @@ ENV LC_ALL C.UTF-8
 ENV LANG C.UTF-8
 
 ARG IMAGE_VERSION
+ARG TARGET_PLATFORM ${TARGET_PLATFORM:x64Linux}
+ARG TARGET_COMPILER ${TARGET_COMPILER:3gcc5.4.0}
 ENV IMAGE_VERSION ${IMAGE_VERSION:-0.0.1}
 
 RUN apt-get update \
@@ -41,18 +43,18 @@ RUN apt-get update \
     && rm /var/lib/apt/lists/* -r \
     && rm -rf /usr/share/man/
 
-RUN curl -L -O -k https://cmake.org/files/v3.13/cmake-3.13.2-Linux-x86_64.tar.gz \
-    && tar -xvf cmake-3.13.2-Linux-x86_64.tar.gz > /dev/null \
-    && rm -v cmake-3.13.2-Linux-x86_64.tar.gz \
-    && mv -v cmake-3.13.2-Linux-x86_64 /opt/cmake
+RUN curl -L -O -k https://cmake.org/files/v3.14/cmake-3.14.0-rc1-Linux-x86_64.tar.gz \
+    && tar -xvf cmake-3.14.0-rc1-Linux-x86_64.tar.gz > /dev/null \
+    && rm -v cmake-3.14.0-rc1-Linux-x86_64.tar.gz \
+    && mv -v cmake-3.14.0-rc1-Linux-x86_64 /opt/cmake
 
 ENV PATH $PATH:/opt/cmake/bin
 
 RUN wget --no-cookies --no-check-certificate \
        --header "Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2F; oraclelicense=accept-securebackup-cookie"\
-       "https://download.oracle.com/otn-pub/java/jdk/8u192-b12/750e1c8617c5452694857ad95c3ee230/jdk-8u192-linux-x64.tar.gz" \
-    && tar -xvzf jdk-8u192-linux-x64.tar.gz -C /opt/ \
-    && rm -v jdk-8u192-linux-x64.tar.gz
+       "https://download.oracle.com/otn-pub/java/jdk/8u202-b08/1961070e4c9b4e26a04e7f5a083f551e/jdk-8u202-linux-x64.tar.gz" \
+    && tar -xvzf jdk-8u202-linux-x64.tar.gz -C /opt/ \
+    && rm -v jdk-8u202-linux-x64.tar.gz
 
 RUN cd /home \
     &&  wget --no-check-certificate https://www-eu.apache.org/dist/maven/maven-3/3.6.0/binaries/apache-maven-3.6.0-bin.tar.gz \
@@ -60,19 +62,30 @@ RUN cd /home \
     && mv apache-maven-3.6.0/ /opt/apache-maven \
     && rm -v apache-maven-3.6.0-bin.tar.gz
 
-ENV JAVA_HOME /opt/jdk1.8.0_192
-ENV JRE_HOME /opt/jdk1.8.0_192/jre
+ENV JAVA_HOME /opt/jdk1.8.0_202
+ENV JRE_HOME /opt/jdk1.8.0_202/jre
 ENV M2_HOME /opt/apache-maven/
 ENV M2 $M2_HOME/bin
 ENV MAVEN_OPTS "-Dstyle.info=bold,green -Dstyle.project=bold,magenta -Dstyle.warning=bold,yellow \
         -Dstyle.mojo=bold,cyan -Xmx1048m -Xms256m -XX:MaxPermSize=312M"
 ENV PATH $PATH:/opt/apache-maven/bin/:/opt/jdk1.8.0_192/bin:/opt/jdk1.8.0_192/jre/bin
 
+RUN cd /home \
+    && curl -L -O -k https://downloads.gradle.org/distributions/gradle-5.1.1-bin.zip \
+    && mkdir -pv /opt/gradle \
+#    && unzip -d /opt/gradle gradle-5.1.1-bin.zip \
+    && unzip gradle-5.1.1-bin.zip \
+    && mv -v gradle-5.1.1  /opt/gradle/ \
+    && rm -vf gradle-5.1.1-bin.zip
+
+ENV PATH $PATH:/opt/gradle/gradle-5.1.1/bin
+
 RUN cmake --version \
     && make --version \
     && gcc --version \
     && java -version \
-    && mvn --version
+    && mvn --version \
+    && gradle -v
 
 
 RUN cd /home \
@@ -114,6 +127,28 @@ RUN cd /home \
     && cd /home \
     && rm -rvf logging-log4cxx
 
+# kept OpenSSL_1_0_2 for compatibility with the one provided by RTI (openssl-1.0.2n-5.3.1-host-x64Linux.rtipkg)
+RUN cd /home \
+    && GIT_SSL_NO_VERIFY=1 git clone --depth=1 -b OpenSSL_1_0_2-stable https://github.com/openssl/openssl.git  openssl \
+    && cd openssl \
+#    && ./config --prefix=/usr shared enable-ec enable-ecdh enable-ecdsa \
+    && ./config --prefix=/usr  \
+    && make \
+    && make install \
+    && cd /home \
+    && rm -rvf openssl
+
+#    && pip install --upgrade pip \
+RUN cd /home \
+    && GIT_SSL_NO_VERIFY=1 git clone --depth=1 https://github.com/conan-io/conan.git \
+    && cd conan  \
+    && pip3 install --upgrade pip \
+    && pip install -r conans/requirements.txt
+#    using local server.... ussu in dicker
+#   https://docs.conan.io/en/latest/uploading_packages/running_your_server.html
+#    && pip install -r conans/requirements_server.txt
+#    && pip install gunicorn
+
 COPY support/rti_connext_dds-5.3.1-pro-host-x64Linux.run  /tmp/
 
 RUN cd /tmp/ \
@@ -123,6 +158,7 @@ RUN cd /tmp/ \
 
 COPY support/rti_license.dat /opt/rti_connext_dds-5.3.1/
 COPY support/*.rtipkg  /tmp/
+COPY support/*.tar.gz  /tmp/
 
 ENV PATH="${PATH}:/opt/rti_connext_dds-5.3.1/bin"
 ENV NDDSHOME=/opt/rti_connext_dds-5.3.1
@@ -133,9 +169,16 @@ RUN cd /tmp/ \
     && rtipkginstall -unattended rti_limited_bandwidth_plugins-5.3.1-x64Linux3gcc5.4.0.rtipkg \
     && rtipkginstall -unattended rti_secure_wan-5.3.1-x64Linux3gcc5.4.0.rtipkg \
     && rtipkginstall -unattended rti_security_plugins-5.3.1-target-x64Linux3gcc5.4.0.rtipkg \
+    && rtipkginstall -unattended openssl-1.0.2n-5.3.1-host-x64Linux.rtipkg  \
     && rtipkginstall -unattended rti_tls_support-5.3.1-x64Linux3gcc5.4.0.rtipkg \
     && rtipkginstall -unattended rti_web_integration_service-5.3.1-x64Linux.rtipkg \
-    && rm -rvf /tmp/*.rtipkg
+    && rtipkginstall -unattended rti_connext_dds-5.3.1-pro-target-armv8Linux4.4gcc5.4.0.rtipkg \
+    && rtipkginstall -unattended rti_connext_dds-5.3.1-pro-target-x64Linux3gcc5.4.0.rtipkg \
+    && rtipkginstall -unattended rti_secure_wan-5.3.1-armv8Linux4.4gcc5.4.0.rtipkg \
+    && rtipkginstall -unattended rti_security_plugins-5.3.1-target-armv8Linux4.4gcc5.4.0.rtipkg \
+    && rtipkginstall -unattended rti_tls_support-5.3.1-armv8Linux4.4gcc5.4.0.rtipkg \
+    && rm -rvf /tmp/*.rtipkg /tmp/*.tar.gz
+
 
 RUN cd /home
     && curl -L -O -k https://www.openssl.org/source/openssl-1.0.2q.tar.gz \
@@ -148,6 +191,11 @@ RUN cd /home
 #CMD /usr/bin/openssl genrsa -out /certs/${KEY_NAME}.key 1024 && \
 #    /usr/bin/openssl req  -new -newkey rsa:4096 -days 365 -nodes -subj "/C=/ST=/L=/O=/CN=${COMMON_NAME}" -keyout /certs/${KEY_NAME}.key -out /certs/${KEY_NAME}.csr  && \
 #    /usr/bin/openssl x509 -req -days 365 -in /certs/${KEY_NAME}.csr -signkey /certs/${KEY_NAME}.key -out /certs/${KEY_NAME}.crt
+
+RUN useradd -ms /bin/bash happyman
+
+USER happyman
+WORKDIR /home/happyman
 
 CMD ["/bin/bash"]
 
