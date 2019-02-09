@@ -179,11 +179,90 @@ RUN cd /tmp/ \
     && rtipkginstall -unattended rti_tls_support-5.3.1-armv8Linux4.4gcc5.4.0.rtipkg \
     && rm -rvf /tmp/*.rtipkg /tmp/*.tar.gz
 
+RUN cd /home \
+    && git clone --depth=1 https://github.com/uncrustify/uncrustify.git \
+    && cd uncrustify \
+    && cmake -E make_directory build \
+    && cmake -E chdir build cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local \
+    && cmake --build build --target all --clean-first \
+    && cmake --build build --target install \
+    && cd /home \
+    && rm -rvf uncrustify
 
-RUN cd /home
-    && curl -L -O -k https://www.openssl.org/source/openssl-1.0.2q.tar.gz \
-    && tar -xvzf openssl-1.0.2q.tar.gz > /dev/null  \
-    && --prefix=/usr/ --release \
+RUN cd /home \
+    && git clone --depth=1 https://github.com/danmar/cppcheck.git \
+    && cd cppcheck \
+    && cmake -E make_directory build \
+    && cmake -E chdir build cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local \
+    && cmake --build build --target all --clean-first  \
+    && cmake --build build --target install \
+    && cp --recursive --verbose cfg  /usr/local/bin || true \
+    && cd /home \
+    && rm -rvf cppcheck
+
+RUN cd /home \
+    && git clone --depth=1 https://github.com/doxygen/doxygen.git  \
+    && cd doxygen \
+    && cmake -E make_directory build \
+    && cmake -E chdir build cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local \
+    && cmake --build build --target all --clean-first  \
+    && cmake --build build --target install \
+    && cd /home \
+    && rm -rvf doxygen
+
+RUN cd /home \
+    && git clone --depth=1 https://github.com/google/googletest.git \
+    && cd googletest \
+    && cmake -E make_directory build \
+    && cmake -E chdir build cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local \
+    && cmake --build build --target all --clean-first  \
+    && cmake --build build --target install \
+    && cd /home \
+    && rm -rvf googletest
+
+RUN cd /home \
+    && git clone --depth=1 https://github.com/google/benchmark.git \
+    && cd benchmark \
+    && cmake -E make_directory build \
+    && cmake -E chdir build cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local \
+    && cmake --build build --target all --clean-first  \
+    && cmake --build build --target install \
+    && cd /home \
+    && rm -rvf benchmark
+
+RUN cd /home \
+    && curl -L -O -k https://dl.bintray.com/boostorg/release/1.69.0/source/boost_1_69_0.tar.gz \
+    && tar xfz boost_1_69_0.tar.gz > /dev/null \
+    && cd boost_1_69_0 \
+    && ./bootstrap.sh --prefix=/usr/ \
+    && ./b2 --help \
+    && ./b2 link=shared threading=multi variant=release address-model=64 \
+    && ./b2 install \
+    && cd /home \
+    && rm -rvf boost_1_69_0 boost_1_69_0.tar.gz
+
+RUN cd /home \
+    && git clone --depth=1 --recurse-submodules https://github.com/cucumber/cucumber-cpp.git \
+    && cd cucumber-cpp \
+    && gem install bundler -v 1.17.3 \
+    && bundle install \
+    && cmake -E make_directory build \
+    && cmake -E chdir build cmake -DCUKE_ENABLE_EXAMPLES=on -DCMAKE_INSTALL_PREFIX=/usr/local .. \
+    && cmake --build build --target all --clean-first \
+    && cmake --build build --target install \
+    && cd /home \
+    && rm -rf cucumber-cp
+
+RUN cd /home \
+    && git clone --depth=1 https://github.com/protocolbuffers/protobuf.git \
+    && cd protobuf \
+    && ./autogen.sh \
+    && ./configure --prefix=/usr/ \
+    && make clean && make && make install \
+    && cd /home \
+    && rm -rf protobuf
+
+
 
 # ENTRYPOINT rtilauncher
 # ENTRYPOINT ["/opt/rti_connext_dds-5.2.3/bin/rtipersistenceservice"]

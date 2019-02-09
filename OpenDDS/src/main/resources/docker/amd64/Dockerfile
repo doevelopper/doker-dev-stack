@@ -59,10 +59,17 @@ RUN cd /home \
     && mv apache-maven-3.6.0/ /opt/apache-maven \
     && rm -v apache-maven-3.6.0-bin.tar.gz
 
+RUN cd /home \
+    && wget --no-check-certificate https://www.jacorb.org/releases/2.3.1/jacorb-2.3.1-bin.zip \
+    && unzip jacorb-2.3.1-bin.zip \
+    && mv -v jacorb-2.3.1 /opt/
+
 ENV JAVA_HOME /opt/jdk1.8.0_202
 ENV JRE_HOME /opt/jdk1.8.0_202/jre
 ENV M2_HOME /opt/apache-maven/
 ENV M2 $M2_HOME/bin
+ENV JACORB_HOME /opt/jacorb-2.3.1
+
 ENV MAVEN_OPTS "-Dstyle.info=bold,green -Dstyle.project=bold,magenta -Dstyle.warning=bold,yellow \
         -Dstyle.mojo=bold,cyan -Xmx1048m -Xms256m -XX:MaxPermSize=312M"
 ENV PATH $PATH:/opt/apache-maven/bin/:/opt/jdk1.8.0_192/bin:/opt/jdk1.8.0_192/jre/bin
@@ -83,6 +90,89 @@ RUN cmake --version \
     && java -version \
     && mvn --version \
     && gradle -v
+
+RUN cd /home \
+    && git clone --depth=1 https://github.com/uncrustify/uncrustify.git \
+    && cd uncrustify \
+    && cmake -E make_directory build \
+    && cmake -E chdir build cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local \
+    && cmake --build build --target all --clean-first \
+    && cmake --build build --target install \
+    && cd /home \
+    && rm -rvf uncrustify
+
+RUN cd /home \
+    && git clone --depth=1 https://github.com/danmar/cppcheck.git \
+    && cd cppcheck \
+    && cmake -E make_directory build \
+    && cmake -E chdir build cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local \
+    && cmake --build build --target all --clean-first  \
+    && cmake --build build --target install \
+    && cp --recursive --verbose cfg  /usr/local/bin || true \
+    && cd /home \
+    && rm -rvf cppcheck
+
+RUN cd /home \
+    && git clone --depth=1 https://github.com/doxygen/doxygen.git  \
+    && cd doxygen \
+    && cmake -E make_directory build \
+    && cmake -E chdir build cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local \
+    && cmake --build build --target all --clean-first  \
+    && cmake --build build --target install \
+    && cd /home \
+    && rm -rvf doxygen
+
+RUN cd /home \
+    && git clone --depth=1 https://github.com/google/googletest.git \
+    && cd googletest \
+    && cmake -E make_directory build \
+    && cmake -E chdir build cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local \
+    && cmake --build build --target all --clean-first  \
+    && cmake --build build --target install \
+    && cd /home \
+    && rm -rvf googletest
+
+RUN cd /home \
+    && git clone --depth=1 https://github.com/google/benchmark.git \
+    && cd benchmark \
+    && cmake -E make_directory build \
+    && cmake -E chdir build cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local \
+    && cmake --build build --target all --clean-first  \
+    && cmake --build build --target install \
+    && cd /home \
+    && rm -rvf benchmark
+
+RUN cd /home \
+    && curl -L -O -k https://dl.bintray.com/boostorg/release/1.69.0/source/boost_1_69_0.tar.gz \
+    && tar xfz boost_1_69_0.tar.gz > /dev/null \
+    && cd boost_1_69_0 \
+    && ./bootstrap.sh --prefix=/usr/ \
+    && ./b2 --help \
+    && ./b2 link=shared threading=multi variant=release address-model=64 \
+    && ./b2 install \
+    && cd /home \
+    && rm -rvf boost_1_69_0 boost_1_69_0.tar.gz
+
+RUN cd /home \
+    && git clone --depth=1 --recurse-submodules https://github.com/cucumber/cucumber-cpp.git \
+    && cd cucumber-cpp \
+    && gem install bundler -v 1.17.3 \
+    && bundle install \
+    && cmake -E make_directory build \
+    && cmake -E chdir build cmake -DCUKE_ENABLE_EXAMPLES=on -DCMAKE_INSTALL_PREFIX=/usr/local .. \
+    && cmake --build build --target all --clean-first \
+    && cmake --build build --target install \
+    && cd /home \
+    && rm -rf cucumber-cp
+
+RUN cd /home \
+    && git clone --depth=1 https://github.com/protocolbuffers/protobuf.git \
+    && cd protobuf \
+    && ./autogen.sh \
+    && ./configure --prefix=/usr/ \
+    && make clean && make && make install \
+    && cd /home \
+    && rm -rf protobuf
 
 
 RUN cd /home \
@@ -146,9 +236,33 @@ RUN cd /home \
 
 
 
-# ENTRYPOINT rtilauncher
-# ENTRYPOINT ["/opt/rti_connext_dds-5.2.3/bin/rtipersistenceservice"]
-# CMD ["-cfgFile","/config.xml","-cfgName","gets_persistence"]
+ENV OPENDDS_BUILD_OPTIONS "-std=c++11 --ipv6 --openssl --xerces3=/usr/local --java --rapidjson --glib --boost=/usr/"
+ENV OPENDDS_BUILD_CONFIG_OPTIONS "--no-tests --no-inline --features=versioned_namespace=1 --no-debug --optimize"
+ENV DDS_BUILD_CONFIG_OPTIONS "--security --safety-profile=base"
+ENV DDS_SAFETY_BASE_NO_BUILTIN_TOPICS "--safety-profile=base --no-built-in-topics"
+ENV DDS_SECURITY "--security --features=versioned_namespace=1"
+ENV DDS_WITHOUTFEATURES "--no-inline --no-debug --no-built-in-topics --no-content-subscription --no-ownership-profile --no-object-model-profile --no-persistence-profile --security"
+ENV DDS_BUILD_MACRO "--macros=c++11=1"
+ENV DDS_BUILD_MACRO_1 "--macros=CPPFLAGS+=-Wno-deprecated -Wno-unused-result"
+ENV DDS_BUILD_MACRO_2 "--macros=CPPFLAGS+=-Wno-deprecated-declarations -Wno-implicit-fallthroug -Wno-unused-result"
+
+ARG GET_DDS_REPO="https://github.com/objectcomputing/OpenDDS.git"
+ARG GET_DDS_VERSION="DDS-3.13"
+
+RUN cd /home \
+    &&  git clone  --depth=1 --recurse-submodules ${GET_DDS_REPO} \
+    && cd OpenDDS \
+    && ./configure --help \
+    && ./configure $OPENDDS_BUILD_OPTIONS  $OPENDDS_BUILD_CONFIG_OPTIONS $DDS_BUILD_CONFIG_OPTIONS \
+        $DDS_BUILD_MACRO $DDS_BUILD_MACRO_1 $DDS_BUILD_MACRO_2 \
+        --mpcopts="-workers 4" --ace-github-latest \
+        --prefix=/usr/opendds \
+    && ./tools/scripts/show_build_config.pl \
+    && export LD_LIBRARY_PATH=:${LD_LIBRARY_PATH}:${pwd}/build/target/ACE_TAO/ACE/lib:${ACE_ROOT}/lib:${pwd}/build/target/lib:${pwd}/lib \
+    && make clean && make && make install \
+    && cd /home \     
+    && rm -rvf OpenDDS
+
 #CMD /usr/bin/openssl genrsa -out /certs/${KEY_NAME}.key 1024 && \
 #    /usr/bin/openssl req  -new -newkey rsa:4096 -days 365 -nodes -subj "/C=/ST=/L=/O=/CN=${COMMON_NAME}" -keyout /certs/${KEY_NAME}.key -out /certs/${KEY_NAME}.csr  && \
 #    /usr/bin/openssl x509 -req -days 365 -in /certs/${KEY_NAME}.csr -signkey /certs/${KEY_NAME}.key -out /certs/${KEY_NAME}.crt
