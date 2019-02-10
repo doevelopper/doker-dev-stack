@@ -267,9 +267,12 @@ RUN cd /home \
 # ENTRYPOINT rtilauncher
 # ENTRYPOINT ["/opt/rti_connext_dds-5.2.3/bin/rtipersistenceservice"]
 # CMD ["-cfgFile","/config.xml","-cfgName","gets_persistence"]
-#CMD /usr/bin/openssl genrsa -out /certs/${KEY_NAME}.key 1024 && \
-#    /usr/bin/openssl req  -new -newkey rsa:4096 -days 365 -nodes -subj "/C=/ST=/L=/O=/CN=${COMMON_NAME}" -keyout /certs/${KEY_NAME}.key -out /certs/${KEY_NAME}.csr  && \
-#    /usr/bin/openssl x509 -req -days 365 -in /certs/${KEY_NAME}.csr -signkey /certs/${KEY_NAME}.key -out /certs/${KEY_NAME}.crt
+# CMD /usr/bin/openssl genrsa -out /certs/${KEY_NAME}.key 1024 && \
+#    /usr/bin/openssl req  -new -newkey rsa:4096 -days 365 -nodes \
+#                     -subj "/C=/ST=/L=/O=/CN=${COMMON_NAME}" -keyout /certs/${KEY_NAME}.key \
+#                     -out /certs/${KEY_NAME}.csr  && \
+#    /usr/bin/openssl x509 -req -days 365 -in /certs/${KEY_NAME}.csr \
+#                     -signkey /certs/${KEY_NAME}.key -out /certs/${KEY_NAME}.crt
 
 RUN useradd -ms /bin/bash happyman
 

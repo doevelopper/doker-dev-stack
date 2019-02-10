@@ -69,6 +69,17 @@ check-docker:
 	exit 22222; \
 	fi
 
+.PHONY: image-info
+image-info:
+	@docker inspect --format='Description:  {{.Config.Labels.Description}}' $(RUNTIME_FQIN)
+	@docker inspect --format='Vendor:   {{.Config.Labels.Vendor}}' $(RUNTIME_FQIN)
+	@docker inspect --format='Authors:  {{.Author}}' $(RUNTIME_FQIN)
+	@docker inspect --format='Version:  {{.Config.Labels.Version}}' $(RUNTIME_FQIN)
+	@docker inspect --format='DockerVersion:    {{.DockerVersion}}' $(RUNTIME_FQIN)
+	@docker inspect --format='Architecture: {{.Architecture}}' $(RUNTIME_FQIN)
+	@docker inspect --format='OS:       {{.Os}}' $(RUNTIME_FQIN)
+	@docker inspect --format='Size:         {{.Size}} bytes' $(RUNTIME_FQIN)
+
 # Allow developers to step into the containerized development environment
 
 # Containerized build of the binary
@@ -82,6 +93,9 @@ help:  ## Disply this help and exit.
 	@echo
 	@echo "Please use \`make <target>' where <target> is one of:"
 	@echo
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
-
-
+#	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {sub("\\\\n",sprintf("\n%22c"," "), $$2);printf " \033[36m%-20s\033[0m  %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+	@echo ""
+	@echo " list :           List all Containers and Volumes on system."
+	@echo " inspect :        Display container info. Default  $(DEV_IMAGE)"
+	@echo '---------------------------------------------------------------------------------------------------------'

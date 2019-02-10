@@ -26,6 +26,8 @@ variables:
     IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
     CONTAINER_TEST_IMAGE: registry.gitlab.com/doevelopper/doker-dev-stack/dev-image:$CI_COMMIT_REF_SLUG
     CONTAINER_RELEASE_IMAGE: registry.gitlab.com/doevelopper/doker-dev-stack/dev-image:latest
+    CONTAINER_NAME: $CI_BUILD_REF
+    REGISTRY: registry.gitlab.com
 
 before_script:
     - echo "docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com"
@@ -93,6 +95,10 @@ release-image:
 deploy:
     stage: deploy
     script:
+        - eval $(ssh-agent -s)
+        - ssh-add <(echo "$SSH_PRIVATE_KEY")
+        - ssh-keyscan -H $REMOTE_HOST >> $HOME/.ssh/known_hosts
+        - ssh -t gitlab-runner@$REMOTE_HOST restart $(COMMAND_DESCRIPTION)
         - echo "./deploy.sh"
     only:
         - master

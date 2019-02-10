@@ -156,7 +156,7 @@ RUN cd /home \
     && ./configure --prefix=/usr/ \
     && make clean && make && make install \
     && cd /home \
-    && rm -rf gsoap-2.8 gsoap_2.8.74.zip
+    && rm -rvf gsoap-2.8 gsoap_2.8.74.zip
 
 ENV GSOAPHOME /usr
 ENV PROTOBUF_HOME /usr
@@ -169,8 +169,8 @@ RUN cd /home \
 #    &&  ./configure x86_64.linux-release && make && make install
 #  WKRND make[4]: *** No rule to make target '/usr/include/stdsoap2.c', needed by 'stdsoap2.c'.  Stop.
 #    && ln -s /opt/gsoap-$GSOAP_MAJ_VER/gsoap/stdsoap2.c /opt/gsoap-$GSOAP_MAJ_VER/usr/include/ \
-    && cp -v /home/stdsoap2.c /usr/include/stdsoap2.c \
+    && cp -v ../../stdsoap2.c /usr/include/stdsoap2.c \
     && /bin/bash -c "source configure $SPLICE_TARGET && make clean && make && make install" \
     && mv -v install/HDE /opt/ \
     && cd /home \
-    && rm -rf opensplice
+    && rm -rvf opensplice
