@@ -40,6 +40,10 @@ PROD_IMAGE          ?= $(DOCKER_REGISTRY)/$(IMAGE_PREFIX)/$(shell basename $(CUR
                       # Runtime - Contains only the minimum necessary artifacts to run the microservice
 BUILDER_FQIN        := $(DOCKER_REGISTRY)/$(IMAGE_PREFIX):$(BUILDER_TAG)
 RUNTIME_FQIN        := $(DOCKER_REGISTRY)/$(IMAGE_PREFIX)/$(IMAGE_NAME):$(RUNTIME_TAG)
+DEV_ENV_WORK_DIR    := /home/$(USER)/workspace
+DEV_ENV_OPTS        := --rm -v ${CURDIR}:${DEV_ENV_WORK_DIR} -w ${DEV_ENV_WORK_DIR}
+DEV_ENV_CMD         := docker run ${DEV_ENV_OPTS} ${DEV_ENV_IMAGE}
+DEV_ENV_CMD_INT     := docker run -it ${DEV_ENV_OPTS} ${RUNTIME_FQIN}
 DOCKER              = docker
 DOCKERFILE          ?= Dockerfile
 DOCKER_LABEL        := \
@@ -58,6 +62,19 @@ DOCKER_LABEL        := \
                       	--label org.label-schema.howtouseit= "docker run --rm -ti -v \"$PWD:/home/$(USER)/rti-workspace\" $(BUILDER_FQIN)" \
                       	--label org.label-schema.version=$(PROJECT_VERSION)
 
+.PHONY: check-docker
+check-docker:
+	@if [ -z $$(which docker) ]; then \
+	 echo "Missing docker client which is required for development"; \
+	exit 22222; \
+	fi
+
+# Allow developers to step into the containerized development environment
+
+# Containerized build of the binary
+.PHONY: build-with-container
+build-with-container: check-docker
+	
 
 .PHONY: help
 help:  ## Disply this help and exit.
