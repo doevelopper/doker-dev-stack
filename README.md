@@ -9,8 +9,7 @@
 | OpenDDS           	|             	|               	|
 | FastRTPS          	|             	|               	|
 | RTI               	|             	|               	|
-| Code Analysis     	|             	|               	|
-| Delpoy            	|             	|               	|
+
 
 [![Docker Pulls][pull-shield]][pull]
 [![Automation][automated-shield]][pull]
