@@ -40,8 +40,9 @@ RUN apt-get update \
     && apt-get clean --assume-yes  \
     && apt-get --assume-yes --quiet clean \
     && apt-get --assume-yes --quiet autoremove \
-    && rm /var/lib/apt/lists/* -r \
-    && rm -rf /usr/share/man/
+    && rm -rvf /var/lib/apt/lists/{apt,dpkg,cache,log} /tmp/* /var/tmp/*
+    && rm /var/lib/apt/lists/* -vr \
+    && rm -rvf /usr/share/man/
 
 RUN curl -L -O -k https://cmake.org/files/v3.14/cmake-3.14.0-rc1-Linux-x86_64.tar.gz \
     && tar -xvf cmake-3.14.0-rc1-Linux-x86_64.tar.gz > /dev/null \
